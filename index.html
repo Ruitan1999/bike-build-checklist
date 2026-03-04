@@ -194,19 +194,9 @@
     gap: 10px;
   }
   .total-bar-budget {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    width: 100%;
   }
-  .total-bar-budget .total-label { margin: 0; }
-  #stickyBudgetUsed {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  #stickyBudgetUsed.under { color: var(--accent); }
-  #stickyBudgetUsed.over { color: var(--red); }
+  .total-bar-budget .budget-progress-label { margin-bottom: 4px; }
   .total-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
@@ -578,9 +568,14 @@
     <div class="total-label" id="runningTotalLabel">Running total (AUD)</div>
     <div class="total-amount" id="grandTotal">¥0</div>
   </div>
-  <div class="total-bar-budget">
-    <div class="total-label">Budget used</div>
-    <div id="stickyBudgetUsed">—</div>
+  <div class="total-bar-budget budget-progress-wrap">
+    <div class="budget-progress-label">
+      <span>Budget used</span>
+      <span id="stickyBudgetProgressPct">0%</span>
+    </div>
+    <div class="budget-progress-bar">
+      <div class="budget-progress-fill" id="stickyBudgetProgressFill"></div>
+    </div>
   </div>
 </div>
 
@@ -1066,13 +1061,16 @@
     var budgetFill = document.getElementById('budgetProgressFill');
     var budgetPctEl = document.getElementById('budgetProgressPct');
     var budgetStatusEl = document.getElementById('budgetStatusValue');
-    var stickyBudgetEl = document.getElementById('stickyBudgetUsed');
+    var stickyFill = document.getElementById('stickyBudgetProgressFill');
+    var stickyPctEl = document.getElementById('stickyBudgetProgressPct');
     if (budget > 0) {
       var budgetPct = (grand / budget) * 100;
       var fillPct = Math.min(budgetPct, 100);
       budgetFill.style.width = fillPct + '%';
       budgetFill.classList.toggle('over', grand > budget);
       if (budgetPctEl) budgetPctEl.textContent = Math.round(budgetPct) + '%';
+      if (stickyFill) { stickyFill.style.width = fillPct + '%'; stickyFill.classList.toggle('over', grand > budget); }
+      if (stickyPctEl) stickyPctEl.textContent = Math.round(budgetPct) + '%';
       budgetStatusEl.classList.remove('under', 'over', 'none');
       if (grand <= budget) {
         budgetStatusEl.textContent = 'Under budget by ' + fmt(budget - grand, sym);
@@ -1081,22 +1079,15 @@
         budgetStatusEl.textContent = 'Over budget by ' + fmt(grand - budget, sym);
         budgetStatusEl.classList.add('over');
       }
-      if (stickyBudgetEl) {
-        stickyBudgetEl.textContent = Math.round(budgetPct) + '%' + (grand > budget ? ' (over)' : '');
-        stickyBudgetEl.classList.remove('under', 'over');
-        stickyBudgetEl.classList.add(grand > budget ? 'over' : 'under');
-      }
     } else {
       budgetFill.style.width = '0%';
       budgetFill.classList.remove('over');
       if (budgetPctEl) budgetPctEl.textContent = '0%';
+      if (stickyFill) { stickyFill.style.width = '0%'; stickyFill.classList.remove('over'); }
+      if (stickyPctEl) stickyPctEl.textContent = '0%';
       budgetStatusEl.textContent = 'Set a budget above to track';
       budgetStatusEl.classList.remove('under', 'over');
       budgetStatusEl.classList.add('none');
-      if (stickyBudgetEl) {
-        stickyBudgetEl.textContent = '—';
-        stickyBudgetEl.classList.remove('under', 'over');
-      }
     }
   }
   function resetAll() {
