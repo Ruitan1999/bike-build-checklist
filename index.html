@@ -195,8 +195,19 @@
   }
   .total-bar-budget {
     width: 100%;
+    display: none;
+  }
+  .total-bar.is-stuck .total-bar-budget {
+    display: block;
   }
   .total-bar-budget .budget-progress-label { margin-bottom: 4px; }
+  .sticky-sentinel {
+    height: 1px;
+    width: 100%;
+    pointer-events: none;
+    visibility: hidden;
+    overflow: hidden;
+  }
   .total-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
@@ -559,7 +570,8 @@
 
 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 
-<div class="total-bar">
+<div class="sticky-sentinel" id="stickySentinel" aria-hidden="true"></div>
+<div class="total-bar" id="totalBar">
   <div class="save-actions">
     <button type="button" class="save-btn" onclick="openSaveModal()">Save build</button>
     <button type="button" class="saved-list-btn" onclick="openSavedPanel()">List of builds</button>
@@ -1098,6 +1110,18 @@
     updateAll();
   }
   updateAll();
+
+  (function() {
+    var sentinel = document.getElementById('stickySentinel');
+    var totalBar = document.getElementById('totalBar');
+    if (!sentinel || !totalBar) return;
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        totalBar.classList.toggle('is-stuck', !entry.isIntersecting);
+      });
+    }, { threshold: 0, rootMargin: '0px' });
+    observer.observe(sentinel);
+  })();
 </script>
 </body>
 </html>
