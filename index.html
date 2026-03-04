@@ -371,7 +371,9 @@
     padding: 14px clamp(14px,4vw,24px);
     border-top: 1px solid var(--border);
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
   }
 
   /* AUD BLOCK */
@@ -586,13 +588,10 @@
 <div class="total-bar">
   <div class="save-actions">
     <button type="button" class="save-btn" onclick="openSaveModal()">Save build</button>
-    <button type="button" class="saved-list-btn" onclick="openSavedPanel()">Saved builds</button>
+    <button type="button" class="saved-list-btn" onclick="openSavedPanel()">List of builds</button>
   </div>
   <div class="total-bar-mid">
     <div class="total-label" id="runningTotalLabel">Running total (AUD)</div>
-    <span class="item-count"><span id="checkedCount">0</span>/<span id="totalCount">0</span> sourced</span>
-  </div>
-  <div class="total-bar-amount-wrap">
     <div class="total-amount" id="grandTotal">¥0</div>
   </div>
 </div>
@@ -612,7 +611,7 @@
 <div class="saved-panel-overlay" id="savedPanelOverlay">
   <div class="saved-panel">
     <div class="saved-panel-header">
-      <h3>Saved builds</h3>
+      <h3>List of builds</h3>
       <button type="button" class="saved-panel-close" onclick="closeSavedPanel()" aria-label="Close">&times;</button>
     </div>
     <div class="saved-panel-list" id="savedPanelList"></div>
@@ -780,6 +779,7 @@
       <div id="budgetStatusValue" class="budget-status-value none">Set a budget above to track</div>
     </div>
     <div class="reset-row">
+      <span class="item-count"><span id="checkedCount">0</span>/<span id="totalCount">0</span> sourced</span>
       <button type="button" class="reset-btn" onclick="resetAll()">Reset</button>
     </div>
     <div class="aud-block" id="exchangeBlock">
