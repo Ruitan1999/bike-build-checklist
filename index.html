@@ -412,6 +412,112 @@
     transition: border-color 0.2s;
   }
   .notes-area textarea::placeholder { color: #999; }
+
+  /* SAVE / SAVED BUILDS */
+  .save-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .save-btn, .saved-list-btn {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; background: var(--accent); color: white; border: none;
+    padding: 6px 12px; border-radius: 2px; cursor: pointer; transition: opacity 0.2s;
+  }
+  .save-btn:hover, .saved-list-btn:hover { opacity: 0.9; }
+  .saved-list-btn { background: var(--border); color: var(--text); }
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 24px; max-width: 400px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  .modal h3 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.05em;
+    margin-bottom: 16px; color: var(--text);
+  }
+  .modal label {
+    font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted); display: block; margin-bottom: 6px;
+  }
+  .modal input[type="text"] {
+    width: 100%; box-sizing: border-box; padding: 10px 12px;
+    background: var(--dark); border: 1px solid var(--border); border-radius: 3px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    margin-bottom: 16px; outline: none;
+  }
+  .modal input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal-actions button {
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+    padding: 8px 16px; border-radius: 2px; cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+  }
+  .modal-actions button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .saved-panel-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000;
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .saved-panel-overlay.open { display: flex; }
+  .saved-panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    max-width: 520px; width: 100%; max-height: 85vh; overflow: hidden;
+    display: flex; flex-direction: column; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  .saved-panel-header {
+    padding: 20px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .saved-panel-header h3 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.05em; color: var(--text);
+  }
+  .saved-panel-close {
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 24px; line-height: 1; padding: 0; width: 32px; height: 32px;
+  }
+  .saved-panel-close:hover { color: var(--text); }
+  .saved-panel-list {
+    padding: 16px; overflow-y: auto; flex: 1;
+  }
+  .saved-build-card {
+    background: var(--dark); border: 1px solid var(--border); border-radius: 4px;
+    padding: 14px; margin-bottom: 12px; transition: border-color 0.2s;
+  }
+  .saved-build-card:hover { border-color: var(--accent); }
+  .saved-build-name {
+    font-weight: 600; font-size: 14px; color: var(--text); margin-bottom: 6px;
+  }
+  .saved-build-meta {
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .saved-build-stats {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 10px;
+  }
+  .saved-build-stat {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+  }
+  .saved-build-stat strong { color: var(--text); }
+  .saved-build-progress-wrap {
+    height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 10px;
+  }
+  .saved-build-progress-fill {
+    height: 100%; border-radius: 2px; transition: width 0.3s; background: var(--accent);
+  }
+  .saved-build-progress-fill.over { background: var(--red); }
+  .saved-build-actions {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .saved-build-actions button {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.06em;
+    padding: 5px 10px; border-radius: 2px; cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+  }
+  .saved-build-actions button.load-btn { background: var(--accent); color: white; border-color: var(--accent); }
+  .saved-build-actions button:hover { opacity: 0.9; }
+  .saved-empty {
+    text-align: center; color: var(--muted); font-size: 13px; padding: 32px 16px;
+  }
 </style>
 </head>
 <body>
@@ -467,9 +573,35 @@
 <div class="total-bar">
   <div class="total-label" id="runningTotalLabel">Running total (CNY)</div>
   <div class="total-right">
+    <span class="save-actions">
+      <button type="button" class="save-btn" onclick="openSaveModal()">Save build</button>
+      <button type="button" class="saved-list-btn" onclick="openSavedPanel()">Saved builds</button>
+    </span>
     <span class="item-count"><span id="checkedCount">0</span>/<span id="totalCount">0</span> sourced</span>
     <button class="reset-btn" onclick="resetAll()">Reset</button>
     <div class="total-amount" id="grandTotal">¥0</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="saveModal">
+  <div class="modal">
+    <h3>Save build</h3>
+    <label for="buildNameInput">Build name</label>
+    <input type="text" id="buildNameInput" placeholder="e.g. Summer road build" maxlength="80">
+    <div class="modal-actions">
+      <button type="button" onclick="closeSaveModal()">Cancel</button>
+      <button type="button" class="primary" onclick="saveCurrentBuild()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="saved-panel-overlay" id="savedPanelOverlay">
+  <div class="saved-panel">
+    <div class="saved-panel-header">
+      <h3>Saved builds</h3>
+      <button type="button" class="saved-panel-close" onclick="closeSavedPanel()" aria-label="Close">&times;</button>
+    </div>
+    <div class="saved-panel-list" id="savedPanelList"></div>
   </div>
 </div>
 
@@ -654,15 +786,200 @@
 
   <div class="notes-area">
     <div class="section-label-sm">Build Notes</div>
-    <textarea placeholder="frame size, colour scheme, build goals, shipping timeline, bike fit notes…"></textarea>
+    <textarea id="buildNotes" placeholder="frame size, colour scheme, build goals, shipping timeline, bike fit notes…"></textarea>
   </div>
 
 </div>
 
 <script>
   const NUM_SECTIONS = 8;
+  const STORAGE_KEY = 'bikeBuildChecklist_savedBuilds';
   const CURRENCIES = { CNY: { sym: '¥' }, USD: { sym: '$' }, EUR: { sym: '€' }, GBP: { sym: '£' }, AUD: { sym: 'A$' } };
   function fmt(n, sym) { return n === 0 ? sym + '0' : sym + Math.round(n).toLocaleString('en-AU'); }
+
+  function getBuildData() {
+    var primary = document.getElementById('currencyPrimary').value;
+    var convertTo = document.getElementById('convertTo').value;
+    var budget = document.getElementById('budgetInput').value;
+    var fxRate = document.getElementById('fxRate').value;
+    var notes = (document.getElementById('buildNotes') || {}).value || '';
+    var items = [];
+    for (var s = 0; s < NUM_SECTIONS; s++) {
+      var cont = document.querySelector('[data-section="' + s + '"]');
+      if (!cont) continue;
+      cont.querySelectorAll('.item').forEach(function(item) {
+        var cb = item.querySelector('input[type="checkbox"]');
+        var priceInput = item.querySelector('.price-input');
+        var notesInput = item.querySelector('.item-notes');
+        items.push({
+          checked: cb ? cb.checked : false,
+          price: priceInput ? (priceInput.value || '') : '',
+          notes: notesInput ? (notesInput.value || '') : ''
+        });
+      });
+    }
+    return {
+      currencyPrimary: primary,
+      convertTo: convertTo,
+      budget: budget,
+      fxRate: fxRate,
+      buildNotes: notes,
+      items: items
+    };
+  }
+
+  function setBuildData(data) {
+    if (!data) return;
+    var primary = data.currencyPrimary || 'AUD';
+    var convertTo = data.convertTo != null ? data.convertTo : 'none';
+    document.getElementById('currencyPrimary').value = primary;
+    document.getElementById('convertTo').value = convertTo;
+    document.getElementById('budgetInput').value = data.budget || '';
+    document.getElementById('fxRate').value = data.fxRate || '0.2064';
+    var notesEl = document.getElementById('buildNotes');
+    if (notesEl) notesEl.value = data.buildNotes || '';
+    var items = data.items || [];
+    var idx = 0;
+    for (var s = 0; s < NUM_SECTIONS; s++) {
+      var cont = document.querySelector('[data-section="' + s + '"]');
+      if (!cont) continue;
+      cont.querySelectorAll('.item').forEach(function(item) {
+        var row = items[idx++];
+        if (!row) return;
+        var cb = item.querySelector('input[type="checkbox"]');
+        var priceInput = item.querySelector('.price-input');
+        var notesInput = item.querySelector('.item-notes');
+        if (cb) cb.checked = !!row.checked;
+        if (priceInput) priceInput.value = row.price || '';
+        if (notesInput) notesInput.value = row.notes || '';
+      });
+    }
+    updateAll();
+  }
+
+  function getSavedBuilds() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+
+  function setSavedBuilds(list) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+
+  function openSaveModal() {
+    document.getElementById('buildNameInput').value = '';
+    document.getElementById('saveModal').classList.add('open');
+    document.getElementById('buildNameInput').focus();
+  }
+
+  function closeSaveModal() {
+    document.getElementById('saveModal').classList.remove('open');
+  }
+
+  function saveCurrentBuild() {
+    var name = (document.getElementById('buildNameInput').value || '').trim();
+    if (!name) {
+      document.getElementById('buildNameInput').focus();
+      return;
+    }
+    var data = getBuildData();
+    var list = getSavedBuilds();
+    var total = 0;
+    (data.items || []).forEach(function(row) { total += parseFloat(row.price) || 0; });
+    var budget = parseFloat(data.budget) || 0;
+    list.unshift({
+      id: 'id_' + Date.now(),
+      name: name,
+      savedAt: new Date().toISOString(),
+      total: total,
+      budget: budget,
+      currencyPrimary: data.currencyPrimary,
+      data: data
+    });
+    setSavedBuilds(list);
+    closeSaveModal();
+    openSavedPanel();
+  }
+
+  function openSavedPanel() {
+    document.getElementById('savedPanelOverlay').classList.add('open');
+    renderSavedBuilds();
+  }
+
+  function closeSavedPanel() {
+    document.getElementById('savedPanelOverlay').classList.remove('open');
+  }
+
+  document.getElementById('savedPanelOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeSavedPanel();
+  });
+  document.getElementById('saveModal').addEventListener('click', function(e) {
+    if (e.target === this) closeSaveModal();
+  });
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderSavedBuilds() {
+    var list = getSavedBuilds();
+    var container = document.getElementById('savedPanelList');
+    var sym = function(c) { return (CURRENCIES[c] || {}).sym || ''; };
+    if (!list.length) {
+      container.innerHTML = '<div class="saved-empty">No saved builds yet. Use "Save build" to save your current list.</div>';
+      return;
+    }
+    container.innerHTML = list.map(function(b) {
+      var total = b.total != null ? b.total : 0;
+      var budget = b.budget != null ? b.budget : 0;
+      var currency = b.currencyPrimary || 'AUD';
+      var s = sym(currency);
+      var pct = budget > 0 ? Math.min((total / budget) * 100, 100) : 0;
+      var over = budget > 0 && total > budget;
+      var status = !budget ? 'No budget set' : (over ? 'Over by ' + fmt(total - budget, s) : 'Under by ' + fmt(budget - total, s));
+      var dateStr = '';
+      try {
+        var d = new Date(b.savedAt);
+        dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } catch (e) { dateStr = b.savedAt || ''; }
+      return '<div class="saved-build-card">' +
+        '<div class="saved-build-name">' + escapeHtml(b.name || 'Unnamed') + '</div>' +
+        '<div class="saved-build-meta">Saved ' + escapeHtml(dateStr) + '</div>' +
+        '<div class="saved-build-stats">' +
+          '<span class="saved-build-stat">Total: <strong>' + fmt(total, s) + '</strong></span>' +
+          '<span class="saved-build-stat">Budget: <strong>' + (budget ? fmt(budget, s) : '—') + '</strong></span>' +
+          '<span class="saved-build-stat">' + status + '</span>' +
+        '</div>' +
+        (budget > 0 ? '<div class="saved-build-progress-wrap">' +
+          '<div class="saved-build-progress-fill ' + (over ? 'over' : '') + '" style="width:' + pct + '%"></div>' +
+        '</div>' : '') +
+        '<div class="saved-build-actions">' +
+          '<button type="button" class="load-btn" onclick="loadBuild(\'' + b.id + '\')">Load</button>' +
+          '<button type="button" onclick="deleteBuild(\'' + b.id + '\')">Delete</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  function loadBuild(id) {
+    var list = getSavedBuilds();
+    var b = list.filter(function(x) { return x.id === id; })[0];
+    if (b && b.data) {
+      setBuildData(b.data);
+      closeSavedPanel();
+    }
+  }
+
+  function deleteBuild(id) {
+    if (!confirm('Delete this saved build?')) return;
+    var list = getSavedBuilds().filter(function(x) { return x.id !== id; });
+    setSavedBuilds(list);
+    renderSavedBuilds();
+  }
+
   function updateAll() {
     var primary = document.getElementById('currencyPrimary').value;
     var convertTo = document.getElementById('convertTo').value;
