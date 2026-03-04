@@ -79,9 +79,9 @@
     border-bottom: 1px solid var(--border);
     padding: 14px clamp(16px, 5vw, 48px) 18px;
     display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
   .budget-label {
     font-family: 'DM Mono', monospace;
@@ -111,9 +111,7 @@
   .budget-input::-webkit-outer-spin-button { -webkit-appearance: none; }
   .budget-currency { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--muted); }
   .budget-progress-wrap {
-    flex: 1;
-    min-width: 120px;
-    max-width: 280px;
+    width: 100%;
   }
   .budget-progress-label {
     font-family: 'DM Mono', monospace;
@@ -139,6 +137,35 @@
     background: var(--accent);
   }
   .budget-progress-fill.over { background: var(--red); }
+  .currency-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .currency-field { display: flex; flex-direction: column; gap: 4px; }
+  .currency-field label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .currency-field select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 6px 10px;
+    min-width: 140px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .currency-field select:focus { border-color: var(--accent); }
+  .aud-block.hidden { display: none; }
   .total-bar {
     position: sticky; top: 0; z-index: 100;
     background: rgba(10,10,10,0.97);
@@ -366,19 +393,37 @@
 <body>
 
 <div class="hero">
-  <div class="badge">
-    <span class="tag tag-outline">Tubeless Ready</span>
-    <span class="tag tag-outline">¥ RMB → A$ AUD</span>
-  </div>
   <h1>BIKE<br>BUILD <span>LIST</span></h1>
-  <p class="subtitle">// prices in ¥ RMB · auto-converts to A$ AUD</p>
 </div>
 
 <div class="budget-bar-wrap">
+  <div class="currency-row">
+    <div class="currency-field">
+      <label>Prices in</label>
+      <select id="currencyPrimary" onchange="updateAll()">
+        <option value="CNY">CNY (¥)</option>
+        <option value="USD">USD ($)</option>
+        <option value="EUR">EUR (€)</option>
+        <option value="GBP">GBP (£)</option>
+        <option value="AUD">AUD (A$)</option>
+      </select>
+    </div>
+    <div class="currency-field">
+      <label>Convert to</label>
+      <select id="convertTo" onchange="updateAll()">
+        <option value="none">No conversion</option>
+        <option value="AUD">AUD (A$)</option>
+        <option value="USD">USD ($)</option>
+        <option value="EUR">EUR (€)</option>
+        <option value="GBP">GBP (£)</option>
+        <option value="CNY">CNY (¥)</option>
+      </select>
+    </div>
+  </div>
   <div>
     <div class="budget-label">Budget</div>
     <div class="budget-input-wrap">
-      <span class="budget-currency">¥</span>
+      <span class="budget-currency" id="budgetCurrencySym">¥</span>
       <input id="budgetInput" class="budget-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()">
     </div>
   </div>
@@ -396,7 +441,7 @@
 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 
 <div class="total-bar">
-  <div><div class="total-label">Running Total (¥ RMB)</div></div>
+  <div class="total-label" id="runningTotalLabel">Running total (CNY)</div>
   <div class="total-right">
     <span class="item-count"><span id="checkedCount">0</span>/<span id="totalCount">0</span> sourced</span>
     <button class="reset-btn" onclick="resetAll()">Reset</button>
@@ -559,27 +604,27 @@
     <div class="totals-row"><span class="totals-label">06 — Saddle & Seatpost</span><span class="totals-value" id="ft-5">¥0</span></div>
     <div class="totals-row"><span class="totals-label">07 — Pedals & Cleats</span><span class="totals-value" id="ft-6">¥0</span></div>
     <div class="totals-row"><span class="totals-label">08 — Consumables, Extras & Shipping</span><span class="totals-value" id="ft-7">¥0</span></div>
-    <div class="totals-row grand"><span class="totals-label">Total Build Cost (RMB)</span><span class="totals-value" id="grandTotalFooter">¥0</span></div>
+    <div class="totals-row grand"><span class="totals-label" id="totalCostLabel">Total Build Cost (CNY)</span><span class="totals-value" id="grandTotalFooter">¥0</span></div>
     <div class="budget-status-row">
       <div class="budget-status-label">Budget status</div>
       <div id="budgetStatusValue" class="budget-status-value none">Set a budget above to track</div>
     </div>
-    <div class="aud-block">
+    <div class="aud-block" id="exchangeBlock">
       <div class="aud-block-inner">
         <div>
-          <div class="fx-label">Exchange Rate — ¥1 CNY =</div>
+          <div class="fx-label" id="fxLabel">Exchange Rate — 1 CNY =</div>
           <div class="fx-input-row">
-            <span class="fx-prefix">A$</span>
+            <span class="fx-prefix" id="fxPrefix">A$</span>
             <input id="fxRate" type="number" min="0.0001" step="0.0001" value="0.2064" oninput="updateAll()" onchange="updateAll()">
-            <span class="fx-note">mid-market · Mar 2026</span>
+            <span class="fx-note">edit rate as needed</span>
           </div>
         </div>
         <div class="aud-result">
-          <div class="aud-result-label">Total in AUD</div>
+          <div class="aud-result-label" id="convertedTotalLabel">Total in AUD</div>
           <div id="audTotal">A$0</div>
         </div>
       </div>
-      <div class="aud-disclaimer">Rate is editable — update to today's mid-market rate for accuracy.<br>Source: XE.com / exchange-rates.org · ¥1 = A$0.2064 as of March 2026.</div>
+      <div class="aud-disclaimer">Rate is editable — update to today's rate for accuracy.</div>
     </div>
   </div>
 
@@ -592,9 +637,30 @@
 
 <script>
   const NUM_SECTIONS = 8;
-  function fmt(n) { return n === 0 ? '¥0' : '¥' + Math.round(n).toLocaleString('en-AU'); }
-  function fmtAUD(n) { return n === 0 ? 'A$0' : 'A$' + Math.round(n).toLocaleString('en-AU'); }
+  const CURRENCIES = { CNY: { sym: '¥' }, USD: { sym: '$' }, EUR: { sym: '€' }, GBP: { sym: '£' }, AUD: { sym: 'A$' } };
+  function fmt(n, sym) { return n === 0 ? sym + '0' : sym + Math.round(n).toLocaleString('en-AU'); }
   function updateAll() {
+    var primary = document.getElementById('currencyPrimary').value;
+    var convertTo = document.getElementById('convertTo').value;
+    var sym = CURRENCIES[primary].sym;
+    document.querySelectorAll('.currency').forEach(function(el) { el.textContent = sym; });
+    var budgetSym = document.getElementById('budgetCurrencySym');
+    if (budgetSym) budgetSym.textContent = sym;
+    document.getElementById('totalCostLabel').textContent = 'Total Build Cost (' + primary + ')';
+    var runLabel = document.getElementById('runningTotalLabel');
+    if (runLabel) runLabel.textContent = 'Running total (' + primary + ')';
+
+    var exchangeBlock = document.getElementById('exchangeBlock');
+    if (convertTo === 'none') {
+      exchangeBlock.classList.add('hidden');
+    } else {
+      exchangeBlock.classList.remove('hidden');
+      var targetSym = CURRENCIES[convertTo].sym;
+      document.getElementById('fxLabel').textContent = 'Exchange Rate — 1 ' + primary + ' =';
+      document.getElementById('fxPrefix').textContent = targetSym;
+      document.getElementById('convertedTotalLabel').textContent = 'Total in ' + convertTo;
+    }
+
     let grand = 0, checked = 0, total = 0;
     for (let s = 0; s < NUM_SECTIONS; s++) {
       const cont = document.querySelector(`[data-section="${s}"]`);
@@ -609,15 +675,18 @@
         else { item.classList.remove('checked'); }
       });
       grand += sec;
-      const s0 = document.getElementById(`sub-${s}`); if (s0) s0.textContent = fmt(sec);
-      const f0 = document.getElementById(`ft-${s}`);  if (f0) f0.textContent = fmt(sec);
+      const s0 = document.getElementById(`sub-${s}`); if (s0) s0.textContent = fmt(sec, sym);
+      const f0 = document.getElementById(`ft-${s}`);  if (f0) f0.textContent = fmt(sec, sym);
     }
-    document.getElementById('grandTotal').textContent = fmt(grand);
-    document.getElementById('grandTotalFooter').textContent = fmt(grand);
+    document.getElementById('grandTotal').textContent = fmt(grand, sym);
+    document.getElementById('grandTotalFooter').textContent = fmt(grand, sym);
     document.getElementById('checkedCount').textContent = checked;
     document.getElementById('totalCount').textContent = total;
-    const rate = parseFloat(document.getElementById('fxRate').value) || 0.2064;
-    document.getElementById('audTotal').textContent = fmtAUD(grand * rate);
+
+    if (convertTo !== 'none') {
+      const rate = parseFloat(document.getElementById('fxRate').value) || (primary === convertTo ? 1 : 0.2064);
+      document.getElementById('audTotal').textContent = fmt(grand * rate, CURRENCIES[convertTo].sym);
+    }
     const pct = total > 0 ? (checked / total) * 100 : 0;
     document.getElementById('progressFill').style.width = pct + '%';
 
@@ -634,10 +703,10 @@
       if (budgetPctEl) budgetPctEl.textContent = Math.round(budgetPct) + '%';
       budgetStatusEl.classList.remove('under', 'over', 'none');
       if (grand <= budget) {
-        budgetStatusEl.textContent = 'Under budget by ' + fmt(budget - grand);
+        budgetStatusEl.textContent = 'Under budget by ' + fmt(budget - grand, sym);
         budgetStatusEl.classList.add('under');
       } else {
-        budgetStatusEl.textContent = 'Over budget by ' + fmt(grand - budget);
+        budgetStatusEl.textContent = 'Over budget by ' + fmt(grand - budget, sym);
         budgetStatusEl.classList.add('over');
       }
     } else {
