@@ -195,10 +195,14 @@
     border-bottom: 1px solid var(--border);
     padding: 10px clamp(16px, 5vw, 40px);
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .total-bar-mid {
+    display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    flex-wrap: wrap;
   }
   .total-label {
     font-family: 'DM Mono', monospace;
@@ -208,6 +212,9 @@
     color: var(--muted);
     white-space: nowrap;
   }
+  .total-bar-amount-wrap {
+    text-align: right;
+  }
   .total-amount {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(22px, 5vw, 32px);
@@ -215,7 +222,6 @@
     color: var(--accent);
     white-space: nowrap;
   }
-  .total-right { display: flex; align-items: center; gap: clamp(8px,2vw,16px); flex-wrap: wrap; }
   .item-count { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
   .item-count span { color: var(--text); font-weight: 500; }
   .reset-btn {
@@ -361,6 +367,12 @@
   .budget-status-value.under { color: var(--accent); }
   .budget-status-value.over { color: var(--red); }
   .budget-status-value.none { color: var(--muted); font-family: 'DM Mono', sans-serif; font-size: 14px; }
+  .reset-row {
+    padding: 14px clamp(14px,4vw,24px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+  }
 
   /* AUD BLOCK */
   .aud-block {
@@ -414,7 +426,8 @@
   .notes-area textarea::placeholder { color: #999; }
 
   /* SAVE / SAVED BUILDS */
-  .save-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .save-actions { display: flex; align-items: stretch; gap: 8px; width: 100%; }
+  .save-actions .save-btn, .save-actions .saved-list-btn { flex: 1; }
   .save-btn, .saved-list-btn {
     font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
     text-transform: uppercase; background: var(--accent); color: white; border: none;
@@ -571,14 +584,15 @@
 <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
 
 <div class="total-bar">
-  <div class="total-label" id="runningTotalLabel">Running total (CNY)</div>
-  <div class="total-right">
-    <span class="save-actions">
-      <button type="button" class="save-btn" onclick="openSaveModal()">Save build</button>
-      <button type="button" class="saved-list-btn" onclick="openSavedPanel()">Saved builds</button>
-    </span>
+  <div class="save-actions">
+    <button type="button" class="save-btn" onclick="openSaveModal()">Save build</button>
+    <button type="button" class="saved-list-btn" onclick="openSavedPanel()">Saved builds</button>
+  </div>
+  <div class="total-bar-mid">
+    <div class="total-label" id="runningTotalLabel">Running total (AUD)</div>
     <span class="item-count"><span id="checkedCount">0</span>/<span id="totalCount">0</span> sourced</span>
-    <button class="reset-btn" onclick="resetAll()">Reset</button>
+  </div>
+  <div class="total-bar-amount-wrap">
     <div class="total-amount" id="grandTotal">¥0</div>
   </div>
 </div>
@@ -764,6 +778,9 @@
     <div class="budget-status-row">
       <div class="budget-status-label">Budget status</div>
       <div id="budgetStatusValue" class="budget-status-value none">Set a budget above to track</div>
+    </div>
+    <div class="reset-row">
+      <button type="button" class="reset-btn" onclick="resetAll()">Reset</button>
     </div>
     <div class="aud-block" id="exchangeBlock">
       <div class="aud-block-inner">
