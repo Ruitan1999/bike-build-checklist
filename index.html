@@ -34,17 +34,6 @@
     position: relative;
     overflow: hidden;
   }
-  .hero::before {
-    content: 'DI2';
-    position: absolute;
-    right: -10px; top: -20px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(80px, 18vw, 160px);
-    color: rgba(0,0,0,0.04);
-    pointer-events: none;
-    line-height: 1;
-    user-select: none;
-  }
   .badge { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
   .tag {
     font-family: 'DM Mono', monospace;
@@ -375,6 +364,10 @@
     justify-content: space-between;
     gap: 12px;
   }
+  .currency-footer {
+    padding: 14px clamp(14px,4vw,24px);
+    border-top: 1px solid var(--border);
+  }
 
   /* AUD BLOCK */
   .aud-block {
@@ -542,29 +535,6 @@
 </div>
 
 <div class="budget-bar-wrap">
-  <div class="currency-row">
-    <div class="currency-field">
-      <label>Prices in</label>
-      <select id="currencyPrimary" onchange="updateAll()">
-        <option value="CNY">CNY (¥)</option>
-        <option value="USD">USD ($)</option>
-        <option value="EUR">EUR (€)</option>
-        <option value="GBP">GBP (£)</option>
-        <option value="AUD" selected>AUD (A$)</option>
-      </select>
-    </div>
-    <div class="currency-field">
-      <label>Convert to</label>
-      <select id="convertTo" onchange="updateAll()">
-        <option value="none" selected>No conversion</option>
-        <option value="AUD">AUD (A$)</option>
-        <option value="USD">USD ($)</option>
-        <option value="EUR">EUR (€)</option>
-        <option value="GBP">GBP (£)</option>
-        <option value="CNY">CNY (¥)</option>
-      </select>
-    </div>
-  </div>
   <div style="width: 100%;">
     <div class="budget-label">Budget</div>
     <div class="budget-input-wrap">
@@ -781,6 +751,31 @@
     <div class="reset-row">
       <span class="item-count"><span id="checkedCount">0</span>/<span id="totalCount">0</span> sourced</span>
       <button type="button" class="reset-btn" onclick="resetAll()">Reset</button>
+    </div>
+    <div class="currency-footer">
+      <div class="currency-row">
+        <div class="currency-field">
+          <label>Prices in</label>
+          <select id="currencyPrimary" onchange="updateAll()">
+            <option value="CNY">CNY (¥)</option>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="AUD" selected>AUD (A$)</option>
+          </select>
+        </div>
+        <div class="currency-field">
+          <label>Convert to</label>
+          <select id="convertTo" onchange="updateAll()">
+            <option value="none" selected>No conversion</option>
+            <option value="AUD">AUD (A$)</option>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+            <option value="CNY">CNY (¥)</option>
+          </select>
+        </div>
+      </div>
     </div>
     <div class="aud-block" id="exchangeBlock">
       <div class="aud-block-inner">
