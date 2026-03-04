@@ -7,15 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --red: #E8272A;
-    --dark: #0A0A0A;
-    --mid: #161616;
-    --surface: #1E1E1E;
-    --border: #2A2A2A;
-    --text: #F0F0F0;
-    --muted: #666;
-    --accent: #C8FF00;
-    --aud: #FF9F1C;
+    --red: #C62828;
+    --dark: #f5f5f5;
+    --mid: #eeeeee;
+    --surface: #ffffff;
+    --border: #d0d0d0;
+    --text: #1a1a1a;
+    --muted: #555;
+    --accent: #2e7d32;
+    --aud: #e65100;
   }
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -40,7 +40,7 @@
     right: -10px; top: -20px;
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(80px, 18vw, 160px);
-    color: rgba(255,255,255,0.03);
+    color: rgba(0,0,0,0.04);
     pointer-events: none;
     line-height: 1;
     user-select: none;
@@ -118,11 +118,12 @@
     text-align: left;
     outline: none;
     transition: border-color 0.2s;
+    appearance: textfield;
     -moz-appearance: textfield;
   }
   .budget-input:focus { border-color: var(--accent); }
   .budget-input::-webkit-inner-spin-button,
-  .budget-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .budget-input::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; }
   .budget-progress-wrap {
     width: 100%;
   }
@@ -188,7 +189,7 @@
   .aud-block.hidden { display: none; }
   .total-bar {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(10,10,10,0.97);
+    background: rgba(255,255,255,0.97);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
@@ -250,7 +251,7 @@
     align-items: start;
     gap: 0 10px;
     padding: 10px 4px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
     transition: background 0.15s;
   }
   @media (min-width: 640px) {
@@ -259,7 +260,7 @@
       align-items: center;
     }
   }
-  .item:hover { background: rgba(255,255,255,0.015); }
+  .item:hover { background: rgba(0,0,0,0.03); }
   .item.checked { opacity: 0.4; }
   .item.checked .item-name { text-decoration: line-through; color: var(--muted); }
   .cb-wrap { display: flex; align-items: center; justify-content: center; padding-top: 3px; }
@@ -288,7 +289,7 @@
       border-bottom: 1px dashed transparent; transition: border-color 0.2s;
     }
     .item-notes:focus { border-bottom-color: var(--border); }
-    .item-notes::placeholder { color: #2a2a2a; font-style: italic; font-size: 11px; }
+    .item-notes::placeholder { color: #999; font-style: italic; font-size: 11px; }
   }
   .price-wrap { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
   .currency { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); flex-shrink: 0; }
@@ -297,9 +298,10 @@
     color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px;
     padding: 5px 6px; width: 80px; text-align: right; outline: none;
     transition: border-color 0.2s;
+    appearance: textfield;
     -moz-appearance: textfield;
   }
-  .price-input::-webkit-inner-spin-button, .price-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .price-input::-webkit-inner-spin-button, .price-input::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; }
   .price-input:focus { border-color: var(--accent); }
   @media (min-width: 640px) { .price-input { width: 90px; } }
 
@@ -362,7 +364,7 @@
 
   /* AUD BLOCK */
   .aud-block {
-    background: #0f0f0f; padding: clamp(16px,4vw,24px);
+    background: var(--mid); padding: clamp(16px,4vw,24px);
     border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px;
   }
   .aud-block-inner {
@@ -379,11 +381,13 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 3px;
     color: var(--aud); font-family: 'DM Mono', monospace; font-size: 14px;
     padding: 5px 8px; width: 86px; outline: none; text-align: right;
-    -moz-appearance: textfield; transition: border-color 0.2s;
+    appearance: textfield;
+    -moz-appearance: textfield;
+    transition: border-color 0.2s;
   }
   #fxRate:focus { border-color: var(--aud); }
-  #fxRate::-webkit-inner-spin-button, #fxRate::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .fx-note { font-family: 'DM Mono', monospace; font-size: 9px; color: #333; }
+  #fxRate::-webkit-inner-spin-button, #fxRate::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; }
+  .fx-note { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); }
   .aud-result { text-align: right; }
   .aud-result-label {
     font-family: 'DM Mono', monospace; font-size: 10px;
@@ -393,7 +397,7 @@
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(36px, 8vw, 56px); color: var(--aud); letter-spacing: 0.02em; line-height: 1;
   }
-  .aud-disclaimer { font-family: 'DM Mono', monospace; font-size: 9px; color: #2a2a2a; line-height: 1.5; }
+  .aud-disclaimer { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); line-height: 1.5; }
 
   /* NOTES */
   .notes-area { margin-top: 28px; }
@@ -407,7 +411,7 @@
     font-size: 12px; padding: 14px; outline: none; resize: vertical; min-height: 72px;
     transition: border-color 0.2s;
   }
-  .notes-area textarea::placeholder { color: #2a2a2a; }
+  .notes-area textarea::placeholder { color: #999; }
 </style>
 </head>
 <body>
