@@ -91,7 +91,20 @@
     color: var(--muted);
     white-space: nowrap;
   }
-  .budget-input-wrap { display: flex; align-items: center; gap: 6px; }
+  .budget-input-wrap {
+    position: relative;
+    width: 100%;
+  }
+  .budget-input-wrap .budget-currency {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    color: var(--muted);
+    pointer-events: none;
+  }
   .budget-input {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -99,9 +112,10 @@
     color: var(--text);
     font-family: 'DM Mono', monospace;
     font-size: 16px;
-    padding: 8px 12px;
-    width: 140px;
-    text-align: right;
+    padding: 8px 12px 8px 36px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
     outline: none;
     transition: border-color 0.2s;
     -moz-appearance: textfield;
@@ -109,7 +123,6 @@
   .budget-input:focus { border-color: var(--accent); }
   .budget-input::-webkit-inner-spin-button,
   .budget-input::-webkit-outer-spin-button { -webkit-appearance: none; }
-  .budget-currency { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--muted); }
   .budget-progress-wrap {
     width: 100%;
   }
@@ -139,11 +152,17 @@
   .budget-progress-fill.over { background: var(--red); }
   .currency-row {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
   }
-  .currency-field { display: flex; flex-direction: column; gap: 4px; }
+  .currency-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
   .currency-field label {
     font-family: 'DM Mono', monospace;
     font-size: 9px;
@@ -158,8 +177,9 @@
     color: var(--text);
     font-family: 'DM Mono', monospace;
     font-size: 12px;
-    padding: 6px 10px;
-    min-width: 140px;
+    padding: 8px 10px;
+    width: 100%;
+    box-sizing: border-box;
     outline: none;
     cursor: pointer;
     transition: border-color 0.2s;
@@ -405,13 +425,13 @@
         <option value="USD">USD ($)</option>
         <option value="EUR">EUR (€)</option>
         <option value="GBP">GBP (£)</option>
-        <option value="AUD">AUD (A$)</option>
+        <option value="AUD" selected>AUD (A$)</option>
       </select>
     </div>
     <div class="currency-field">
       <label>Convert to</label>
       <select id="convertTo" onchange="updateAll()">
-        <option value="none">No conversion</option>
+        <option value="none" selected>No conversion</option>
         <option value="AUD">AUD (A$)</option>
         <option value="USD">USD ($)</option>
         <option value="EUR">EUR (€)</option>
@@ -420,10 +440,10 @@
       </select>
     </div>
   </div>
-  <div>
+  <div style="width: 100%;">
     <div class="budget-label">Budget</div>
     <div class="budget-input-wrap">
-      <span class="budget-currency" id="budgetCurrencySym">¥</span>
+      <span class="budget-currency" id="budgetCurrencySym">A$</span>
       <input id="budgetInput" class="budget-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()">
     </div>
   </div>
