@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Road Bike Build — Tubeless Di2</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E8272A;
+    --dark: #0A0A0A;
+    --mid: #161616;
+    --surface: #1E1E1E;
+    --border: #2A2A2A;
+    --text: #F0F0F0;
+    --muted: #666;
+    --accent: #C8FF00;
+    --aud: #FF9F1C;
+  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .hero {
+    background: var(--mid);
+    border-bottom: 1px solid var(--border);
+    padding: clamp(24px, 5vw, 48px) clamp(16px, 5vw, 48px) clamp(20px, 4vw, 36px);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: 'DI2';
+    position: absolute;
+    right: -10px; top: -20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 18vw, 160px);
+    color: rgba(255,255,255,0.03);
+    pointer-events: none;
+    line-height: 1;
+    user-select: none;
+  }
+  .badge { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .tag-red { background: var(--red); color: white; }
+  .tag-outline { border: 1px solid var(--border); color: var(--muted); }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 9vw, 72px);
+    letter-spacing: 0.02em;
+    line-height: 0.95;
+  }
+  h1 span { color: var(--red); }
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+  .progress-bar { height: 2px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; width: 0%; }
+  .total-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,10,0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px clamp(16px, 5vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .total-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .total-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(22px, 5vw, 32px);
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .total-right { display: flex; align-items: center; gap: clamp(8px,2vw,16px); flex-wrap: wrap; }
+  .item-count { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); white-space: nowrap; }
+  .item-count span { color: var(--text); font-weight: 500; }
+  .reset-btn {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; background: none; border: 1px solid var(--border);
+    color: var(--muted); padding: 5px 10px; border-radius: 2px; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .reset-btn:hover { border-color: var(--red); color: var(--red); }
+  .container { max-width: 960px; margin: 0 auto; padding: 0 clamp(12px, 4vw, 32px); }
+  .section { margin-top: clamp(24px, 4vw, 36px); }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+  .section-number {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: 0.1em; min-width: 26px; flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(18px, 3vw, 22px);
+    letter-spacing: 0.06em;
+  }
+  .section-subtotal {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    color: var(--accent); opacity: 0.7; flex-shrink: 0;
+  }
+  .section-line { height: 1px; background: var(--border); margin-bottom: 4px; }
+
+  /* ITEM LAYOUT */
+  .item {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    align-items: start;
+    gap: 0 10px;
+    padding: 10px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+  }
+  @media (min-width: 640px) {
+    .item {
+      grid-template-columns: 28px 1fr minmax(110px,160px) auto;
+      align-items: center;
+    }
+  }
+  .item:hover { background: rgba(255,255,255,0.015); }
+  .item.checked { opacity: 0.4; }
+  .item.checked .item-name { text-decoration: line-through; color: var(--muted); }
+  .cb-wrap { display: flex; align-items: center; justify-content: center; padding-top: 3px; }
+  @media (min-width: 640px) { .cb-wrap { padding-top: 0; } }
+  input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none;
+    width: 16px; height: 16px; min-width: 16px;
+    border: 1px solid var(--border); border-radius: 2px;
+    cursor: pointer; position: relative; transition: all 0.15s; flex-shrink: 0;
+  }
+  input[type="checkbox"]:checked { background: var(--red); border-color: var(--red); }
+  input[type="checkbox"]:checked::after {
+    content: ''; position: absolute;
+    left: 4px; top: 1px; width: 5px; height: 9px;
+    border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg);
+  }
+  .item-info { min-width: 0; }
+  .item-name { font-size: 13px; color: var(--text); line-height: 1.3; transition: color 0.2s; }
+  .item-spec { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 2px; letter-spacing: 0.02em; line-height: 1.4; }
+  .item-notes { display: none; }
+  @media (min-width: 640px) {
+    .item-notes {
+      display: block; font-size: 11px; color: var(--muted);
+      background: none; border: none; outline: none;
+      padding: 2px 0; font-family: 'DM Sans', sans-serif; width: 100%;
+      border-bottom: 1px dashed transparent; transition: border-color 0.2s;
+    }
+    .item-notes:focus { border-bottom-color: var(--border); }
+    .item-notes::placeholder { color: #2a2a2a; font-style: italic; font-size: 11px; }
+  }
+  .price-wrap { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .currency { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+  .price-input {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 3px;
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px;
+    padding: 5px 6px; width: 80px; text-align: right; outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  .price-input::-webkit-inner-spin-button, .price-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .price-input:focus { border-color: var(--accent); }
+  @media (min-width: 640px) { .price-input { width: 90px; } }
+
+  /* SHIPPING SUBSECTION */
+  .shipping-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 4px 6px; margin-top: 6px;
+  }
+  .shipping-badge {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--red); border: 1px solid rgba(232,39,42,0.3);
+    padding: 2px 8px; border-radius: 2px;
+  }
+  .shipping-divider { height: 1px; background: rgba(232,39,42,0.12); margin-bottom: 2px; }
+
+  /* TOTALS */
+  .totals-footer {
+    margin-top: 48px; background: var(--mid);
+    border: 1px solid var(--border); border-radius: 4px; overflow: hidden;
+  }
+  .totals-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px clamp(14px,4vw,24px); border-bottom: 1px solid var(--border); gap: 12px;
+  }
+  .totals-row:last-child { border-bottom: none; }
+  .totals-row.grand { background: var(--surface); padding: 18px clamp(14px,4vw,24px); }
+  .totals-label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); flex-shrink: 0;
+  }
+  .totals-row.grand .totals-label { color: var(--text); font-size: 12px; }
+  .totals-value { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); text-align: right; }
+  .totals-row.grand .totals-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 6vw, 40px); color: var(--accent); letter-spacing: 0.02em;
+  }
+
+  /* AUD BLOCK */
+  .aud-block {
+    background: #0f0f0f; padding: clamp(16px,4vw,24px);
+    border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px;
+  }
+  .aud-block-inner {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .fx-label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 6px;
+  }
+  .fx-input-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .fx-prefix { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--muted); }
+  #fxRate {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 3px;
+    color: var(--aud); font-family: 'DM Mono', monospace; font-size: 14px;
+    padding: 5px 8px; width: 86px; outline: none; text-align: right;
+    -moz-appearance: textfield; transition: border-color 0.2s;
+  }
+  #fxRate:focus { border-color: var(--aud); }
+  #fxRate::-webkit-inner-spin-button, #fxRate::-webkit-outer-spin-button { -webkit-appearance: none; }
+  .fx-note { font-family: 'DM Mono', monospace; font-size: 9px; color: #333; }
+  .aud-result { text-align: right; }
+  .aud-result-label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 2px;
+  }
+  #audTotal {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 8vw, 56px); color: var(--aud); letter-spacing: 0.02em; line-height: 1;
+  }
+  .aud-disclaimer { font-family: 'DM Mono', monospace; font-size: 9px; color: #2a2a2a; line-height: 1.5; }
+
+  /* NOTES */
+  .notes-area { margin-top: 28px; }
+  .section-label-sm {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 8px;
+  }
+  .notes-area textarea {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; color: var(--text); font-family: 'DM Mono', monospace;
+    font-size: 12px; padding: 14px; outline: none; resize: vertical; min-height: 72px;
+    transition: border-color 0.2s;
+  }
+  .notes-area textarea::placeholder { color: #2a2a2a; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">
+    <span class="tag tag-red">Shimano Di2</span>
+    <span class="tag tag-outline">Tubeless Ready</span>
+    <span class="tag tag-outline">¥ RMB → A$ AUD</span>
+  </div>
+  <h1>BIKE<br>BUILD <span>LIST</span></h1>
+  <p class="subtitle">// prices in ¥ RMB · auto-converts to A$ AUD</p>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="total-bar">
+  <div><div class="total-label">Running Total (¥ RMB)</div></div>
+  <div class="total-right">
+    <span class="item-count"><span id="checkedCount">0</span>/<span id="totalCount">0</span> sourced</span>
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+    <div class="total-amount" id="grandTotal">¥0</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 01 FRAMESET -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <span class="section-title">Frameset</span>
+      <span class="section-subtotal" id="sub-0">¥0</span>
+    </div>
+    <div class="section-line"></div>
+    <div class="items" data-section="0">
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Road Frame</div><div class="item-spec">Carbon / Aluminium · Tubeless compatible · Di2 internal routing</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Carbon Fork</div><div class="item-spec">1-1/8" to 1-1/2" tapered · internal cable routing</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Headset</div><div class="item-spec">Integrated / semi-integrated · tapered</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+    </div>
+  </div>
+
+  <!-- 02 DI2 DRIVETRAIN -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <span class="section-title">Shimano Di2 Drivetrain</span>
+      <span class="section-subtotal" id="sub-1">¥0</span>
+    </div>
+    <div class="section-line"></div>
+    <div class="items" data-section="1">
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Di2 Front Derailleur</div><div class="item-spec">Dura-Ace FD-R9250 / Ultegra FD-R8150</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Di2 Rear Derailleur</div><div class="item-spec">Dura-Ace RD-R9250 / Ultegra RD-R8150</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Di2 STI Shifter Levers (pair)</div><div class="item-spec">ST-R9250 / ST-R8150 · hydraulic disc or rim</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Di2 Junction / EW-SD300 Wire Set</div><div class="item-spec">Internal wiring harness · junction box</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Di2 Battery (BT-DN300)</div><div class="item-spec">Internal seat tube mount</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Crankset</div><div class="item-spec">FC-R9200 / FC-R8100 · 52/36T or 50/34T</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Bottom Bracket</div><div class="item-spec">Threaded BSA / Press-fit · Shimano compatible</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Cassette</div><div class="item-spec">CS-R9200 / CS-R8100 · 11-30T or 11-34T 12sp</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Chain</div><div class="item-spec">CN-M9100 / CN-M8100 · 12-speed</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+    </div>
+  </div>
+
+  <!-- 03 BRAKES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <span class="section-title">Brakes</span>
+      <span class="section-subtotal" id="sub-2">¥0</span>
+    </div>
+    <div class="section-line"></div>
+    <div class="items" data-section="2">
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Hydraulic Disc Calipers (pair)</div><div class="item-spec">BR-R9270 / BR-R8170 · flat mount</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Brake Rotors (pair)</div><div class="item-spec">RT-MT800 / SM-RT70 · 160mm / 140mm</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Brake Hose & Bleed Kit</div><div class="item-spec">Mineral oil · SM-BH90 hose</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+    </div>
+  </div>
+
+  <!-- 04 WHEELS & TUBELESS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <span class="section-title">Wheels & Tubeless Setup</span>
+      <span class="section-subtotal" id="sub-3">¥0</span>
+    </div>
+    <div class="section-line"></div>
+    <div class="items" data-section="3">
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Wheelset</div><div class="item-spec">Tubeless Ready · centerlock or 6-bolt · 12mm thru-axle</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Tubeless Tyres (pair)</div><div class="item-spec">700c · 25c–32c · road tubeless</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Tubeless Rim Tape (pair)</div><div class="item-spec">Width matched to rim internal width</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Tubeless Valves (pair)</div><div class="item-spec">Alloy stem · 40mm or 60mm depth matched</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Tyre Sealant</div><div class="item-spec">~60–80ml per tyre · Orange Seal / Muc-Off / Stan's</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Thru-Axles (front + rear)</div><div class="item-spec">12x100 front · 12x142 rear</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+    </div>
+  </div>
+
+  <!-- 05 COCKPIT -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <span class="section-title">Cockpit</span>
+      <span class="section-subtotal" id="sub-4">¥0</span>
+    </div>
+    <div class="section-line"></div>
+    <div class="items" data-section="4">
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Handlebars</div><div class="item-spec">Drop bar · 31.8mm · compact / endurance flare</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Stem</div><div class="item-spec">±6° / ±17° · 90–120mm · 31.8mm clamp</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Bar Tape</div><div class="item-spec">2–3mm EVA / gel wrap</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Stem Spacers</div><div class="item-spec">1-1/8" · 5mm / 10mm set</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+    </div>
+  </div>
+
+  <!-- 06 SADDLE & SEATPOST -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <span class="section-title">Saddle & Seatpost</span>
+      <span class="section-subtotal" id="sub-5">¥0</span>
+    </div>
+    <div class="section-line"></div>
+    <div class="items" data-section="5">
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Saddle</div><div class="item-spec">Road · measured sit bone width</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Seatpost</div><div class="item-spec">27.2mm / 30.9mm · carbon or alloy · setback</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Seatpost Collar / Clamp</div><div class="item-spec">Frame matched diameter</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+    </div>
+  </div>
+
+  <!-- 07 PEDALS -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">07</span>
+      <span class="section-title">Pedals & Cleats</span>
+      <span class="section-subtotal" id="sub-6">¥0</span>
+    </div>
+    <div class="section-line"></div>
+    <div class="items" data-section="6">
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Clipless Pedals</div><div class="item-spec">SPD-SL / Look KEO / Speedplay · road</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Cleats</div><div class="item-spec">Matched to pedal system · float angle</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+    </div>
+  </div>
+
+  <!-- 08 CONSUMABLES + SHIPPING -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-number">08</span>
+      <span class="section-title">Build Consumables & Extras</span>
+      <span class="section-subtotal" id="sub-7">¥0</span>
+    </div>
+    <div class="section-line"></div>
+    <div class="items" data-section="7">
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Carbon Gripper Paste</div><div class="item-spec">Seatpost / bar interface · Finish Line / Muc-Off</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Anti-seize / Grease</div><div class="item-spec">Metal threads · BB · pedals</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Cable & Housing Kit</div><div class="item-spec">Di2 internal wire guides · frame protectors</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Di2 Charger (SM-BCR2)</div><div class="item-spec">USB charging cable · Shimano</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Water Bottle Cages (x2)</div><div class="item-spec">Carbon / alloy · side / top loading</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Computer Mount / GPS</div><div class="item-spec">Garmin / Wahoo stem or bar mount</div></div><input class="item-notes" type="text" placeholder="brand / model…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Labour / Build Fee</div><div class="item-spec">LBS build service · Di2 setup & tubeless seat</div></div><input class="item-notes" type="text" placeholder="shop name…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+
+      <!-- SHIPPING SUB-SECTION -->
+      <div class="shipping-header"><span class="shipping-badge">Shipping & Import Costs</span></div>
+      <div class="shipping-divider"></div>
+
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Domestic Shipping (within China)</div><div class="item-spec">Taobao / JD / local courier · per parcel</div></div><input class="item-notes" type="text" placeholder="courier / tracking…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">International Freight (China → AU)</div><div class="item-spec">EMS / DHL / SF Express · volumetric weight</div></div><input class="item-notes" type="text" placeholder="courier / tracking…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Australian Customs / Import Duty</div><div class="item-spec">ABF · 5% duty + 10% GST on goods &gt;A$1,000</div></div><input class="item-notes" type="text" placeholder="declaration value…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Packaging / Bike Box</div><div class="item-spec">Cardboard bike box · foam / bubble wrap protection</div></div><input class="item-notes" type="text" placeholder="source…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+      <div class="item"><div class="cb-wrap"><input type="checkbox" onchange="updateAll()"></div><div class="item-info"><div class="item-name">Shipping Insurance</div><div class="item-spec">Declared value coverage · fragile / high-value goods</div></div><input class="item-notes" type="text" placeholder="provider…"><div class="price-wrap"><span class="currency">¥</span><input class="price-input" type="number" min="0" step="1" placeholder="0" oninput="updateAll()"></div></div>
+    </div>
+  </div>
+
+  <!-- TOTALS -->
+  <div class="totals-footer">
+    <div class="totals-row"><span class="totals-label">01 — Frameset</span><span class="totals-value" id="ft-0">¥0</span></div>
+    <div class="totals-row"><span class="totals-label">02 — Di2 Drivetrain</span><span class="totals-value" id="ft-1">¥0</span></div>
+    <div class="totals-row"><span class="totals-label">03 — Brakes</span><span class="totals-value" id="ft-2">¥0</span></div>
+    <div class="totals-row"><span class="totals-label">04 — Wheels & Tubeless</span><span class="totals-value" id="ft-3">¥0</span></div>
+    <div class="totals-row"><span class="totals-label">05 — Cockpit</span><span class="totals-value" id="ft-4">¥0</span></div>
+    <div class="totals-row"><span class="totals-label">06 — Saddle & Seatpost</span><span class="totals-value" id="ft-5">¥0</span></div>
+    <div class="totals-row"><span class="totals-label">07 — Pedals & Cleats</span><span class="totals-value" id="ft-6">¥0</span></div>
+    <div class="totals-row"><span class="totals-label">08 — Consumables, Extras & Shipping</span><span class="totals-value" id="ft-7">¥0</span></div>
+    <div class="totals-row grand"><span class="totals-label">Total Build Cost (RMB)</span><span class="totals-value" id="grandTotalFooter">¥0</span></div>
+    <div class="aud-block">
+      <div class="aud-block-inner">
+        <div>
+          <div class="fx-label">Exchange Rate — ¥1 CNY =</div>
+          <div class="fx-input-row">
+            <span class="fx-prefix">A$</span>
+            <input id="fxRate" type="number" min="0.0001" step="0.0001" value="0.2064" oninput="updateAll()" onchange="updateAll()">
+            <span class="fx-note">mid-market · Mar 2026</span>
+          </div>
+        </div>
+        <div class="aud-result">
+          <div class="aud-result-label">Total in AUD</div>
+          <div id="audTotal">A$0</div>
+        </div>
+      </div>
+      <div class="aud-disclaimer">Rate is editable — update to today's mid-market rate for accuracy.<br>Source: XE.com / exchange-rates.org · ¥1 = A$0.2064 as of March 2026.</div>
+    </div>
+  </div>
+
+  <div class="notes-area">
+    <div class="section-label-sm">Build Notes</div>
+    <textarea placeholder="frame size, colour scheme, build goals, shipping timeline, bike fit notes…"></textarea>
+  </div>
+
+</div>
+
+<script>
+  const NUM_SECTIONS = 8;
+  function fmt(n) { return n === 0 ? '¥0' : '¥' + Math.round(n).toLocaleString('en-AU'); }
+  function fmtAUD(n) { return n === 0 ? 'A$0' : 'A$' + Math.round(n).toLocaleString('en-AU'); }
+  function updateAll() {
+    let grand = 0, checked = 0, total = 0;
+    for (let s = 0; s < NUM_SECTIONS; s++) {
+      const cont = document.querySelector(`[data-section="${s}"]`);
+      if (!cont) continue;
+      let sec = 0;
+      cont.querySelectorAll('.item').forEach(item => {
+        total++;
+        const cb = item.querySelector('input[type="checkbox"]');
+        const price = parseFloat(item.querySelector('.price-input')?.value) || 0;
+        sec += price;
+        if (cb?.checked) { checked++; item.classList.add('checked'); }
+        else { item.classList.remove('checked'); }
+      });
+      grand += sec;
+      const s0 = document.getElementById(`sub-${s}`); if (s0) s0.textContent = fmt(sec);
+      const f0 = document.getElementById(`ft-${s}`);  if (f0) f0.textContent = fmt(sec);
+    }
+    document.getElementById('grandTotal').textContent = fmt(grand);
+    document.getElementById('grandTotalFooter').textContent = fmt(grand);
+    document.getElementById('checkedCount').textContent = checked;
+    document.getElementById('totalCount').textContent = total;
+    const rate = parseFloat(document.getElementById('fxRate').value) || 0.2064;
+    document.getElementById('audTotal').textContent = fmtAUD(grand * rate);
+    const pct = total > 0 ? (checked / total) * 100 : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+  function resetAll() {
+    if (!confirm('Reset all prices and checkboxes?')) return;
+    document.querySelectorAll('.price-input').forEach(i => i.value = '');
+    document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+    document.querySelectorAll('.item-notes').forEach(n => n.value = '');
+    updateAll();
+  }
+  updateAll();
+</script>
+</body>
+</html>
